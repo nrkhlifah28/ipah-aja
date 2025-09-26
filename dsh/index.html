@@ -165,14 +165,20 @@
       z-index: 1500;
     }
     .popup-menu.active { right: 0; }
-    .popup-menu a {
+    .popup-menu a, .popup-menu button {
       color: var(--text-light);
       text-decoration: none;
       font-size: 1rem;
       font-weight: 600;
+      background: none;
+      border: none;
+      text-align: left;
+      cursor: pointer;
       transition: var(--transition);
     }
-    .popup-menu a:hover { color: var(--accent); }
+    .popup-menu a:hover, .popup-menu button:hover {
+      color: var(--accent);
+    }
     .popup-menu .close {
       align-self: flex-end;
       font-size: 1.3rem;
@@ -247,7 +253,7 @@
   <!-- Popup Menu -->
   <div class="popup-menu" id="popupMenu">
     <div class="close" onclick="togglePopup()">✖</div>
-    <a href="/api">🔗 API</a>
+    <button onclick="window.location.href='https://ipah-mybinik.vercel.app/api/">🔗 API</button>
     <a href="/contact">📞 CONTACT US</a>
   </div>
 
@@ -263,6 +269,10 @@
     // Toggle Popup Menu
     function togglePopup() {
       document.getElementById("popupMenu").classList.toggle("active");
+    }
+    // Redirect ke API
+    function goAPI() {
+      window.location.href = "/api";
     }
   </script>
 </body>
