@@ -10,10 +10,12 @@
       background: linear-gradient(135deg, #0f172a, #1e293b, #0f172a);
       color: #fff;
       text-align: center;
-      padding: 20px;
+      margin: 0;
+      padding: 0;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      justify-content: center;
       align-items: center;
     }
 
@@ -39,6 +41,12 @@
       border-radius: 20px;
       backdrop-filter: blur(10px);
       box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      animation: fadeIn 1s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     input {
@@ -99,8 +107,6 @@
       width: 60px;
       height: 60px;
       animation: spin 1s linear infinite;
-      margin-left: auto;
-      margin-right: auto;
     }
 
     @keyframes spin {
@@ -118,14 +124,6 @@
   <div class="result" id="result"></div>
 
   <script>
-    async function pinterest(query) {
-      let res = await fetch(`https://www.pinterest.com/resource/BaseSearchResource/get/?source_url=%2Fsearch%2Fpins%2F%3Fq%3D${encodeURIComponent(query)}&data=%7B%22options%22%3A%7B%22isPrefetch%22%3Afalse%2C%22query%22%3A%22${encodeURIComponent(query)}%22%2C%22scope%22%3A%22pins%22%2C%22no_fetch_context_on_resource%22%3Afalse%7D%2C%22context%22%3A%7B%7D%7D`)
-      let json = await res.json()
-      let data = json.resource_response.data.results
-      if (!data.length) throw `"${query}" Tidak ditemukan :(`
-      return data.map(item => item.images.orig.url) // ambil semua gambar
-    }
-
     async function searchImage() {
       let query = document.getElementById("search").value.trim()
       let resultDiv = document.getElementById("result")
@@ -134,12 +132,19 @@
       loader.style.display = "block"
 
       try {
-        let images = await pinterest(query)
+        let res = await fetch(`/api/search?q=${encodeURIComponent(query)}`)
+        let data = await res.json()
+
         loader.style.display = "none"
-        resultDiv.innerHTML = images.map(url => `<img src="${url}" alt="hasil">`).join("")
+
+        if (data.error) {
+          resultDiv.innerHTML = `<p style="color:#f43f5e">${data.error}</p>`
+        } else {
+          resultDiv.innerHTML = `<img src="${data.image}" alt="hasil">`
+        }
       } catch (err) {
         loader.style.display = "none"
-        resultDiv.innerHTML = `<p style="color:#f43f5e">${err}</p>`
+        resultDiv.innerHTML = `<p style="color:#f43f5e">Server error: ${err.message}</p>`
       }
     }
   </script>
