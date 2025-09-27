@@ -6,145 +6,83 @@
   <title>Pinterest Image Search</title>
   <style>
     body {
-      font-family: "Poppins", sans-serif;
-      background: linear-gradient(135deg, #0f172a, #1e293b, #0f172a);
-      color: #fff;
-      text-align: center;
+      font-family: Arial, sans-serif;
+      background: #f8f9fa;
       margin: 0;
-      padding: 0;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
+      padding: 20px;
+      text-align: center;
     }
-
     h1 {
-      font-size: 2rem;
-      margin-bottom: 20px;
-      background: linear-gradient(90deg, #ff007c, #00d9ff, #ff007c);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      animation: gradientMove 3s infinite linear;
+      color: #e60023;
     }
-
-    @keyframes gradientMove {
-      from { background-position: 0% }
-      to { background-position: 200% }
-    }
-
-    .search-box {
-      display: flex;
-      gap: 10px;
-      background: rgba(255,255,255,0.1);
-      padding: 12px 20px;
-      border-radius: 20px;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-      animation: fadeIn 1s ease-out;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    input {
-      width: 250px;
+    input[type="text"] {
       padding: 10px;
-      border: none;
-      border-radius: 10px;
-      outline: none;
-      background: transparent;
-      color: #fff;
-      font-size: 1rem;
+      width: 250px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
     }
-    input::placeholder {
-      color: #ccc;
-    }
-
     button {
-      padding: 10px 20px;
+      padding: 10px 15px;
+      background: #e60023;
       border: none;
-      border-radius: 10px;
-      background: linear-gradient(45deg, #2563eb, #9333ea);
+      border-radius: 8px;
       color: white;
       cursor: pointer;
-      font-weight: bold;
-      transition: transform 0.2s, box-shadow 0.3s;
     }
     button:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 15px rgba(147, 51, 234, 0.7);
+      background: #b3001b;
     }
-
-    .result {
-      margin-top: 30px;
+    .results {
+      margin-top: 20px;
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 20px;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+    .results img {
       width: 100%;
-      max-width: 1000px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      transition: transform 0.2s;
     }
-
-    .result img {
-      width: 100%;
-      border-radius: 15px;
-      transition: transform 0.3s, box-shadow 0.3s;
-      cursor: pointer;
-    }
-
-    .result img:hover {
-      transform: scale(1.08);
-      box-shadow: 0 0 25px rgba(0, 200, 255, 0.7);
-    }
-
-    .loading {
-      margin-top: 30px;
-      border: 6px solid rgba(255,255,255,0.2);
-      border-top: 6px solid #00d9ff;
-      border-radius: 50%;
-      width: 60px;
-      height: 60px;
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      100% { transform: rotate(360deg); }
+    .results img:hover {
+      transform: scale(1.05);
     }
   </style>
 </head>
 <body>
-  <h1>✨ Pinterest Image Search</h1>
-  <div class="search-box">
-    <input type="text" id="search" placeholder="Cari gambar...">
-    <button onclick="searchImage()">Cari</button>
-  </div>
-  <div id="loader" style="display:none;" class="loading"></div>
-  <div class="result" id="result"></div>
+  <h1>🔍 Pinterest Image Search</h1>
+  <input type="text" id="searchInput" placeholder="Cari gambar..." />
+  <button onclick="searchImage()">Search</button>
+  
+  <div class="results" id="results"></div>
 
   <script>
     async function searchImage() {
-      let query = document.getElementById("search").value.trim()
-      let resultDiv = document.getElementById("result")
-      let loader = document.getElementById("loader")
-      resultDiv.innerHTML = ""
-      loader.style.display = "block"
-
+      const query = document.getElementById('searchInput').value.trim();
+      const resultsDiv = document.getElementById('results');
+      resultsDiv.innerHTML = "⏳ Sedang mencari...";
+      
       try {
-        let res = await fetch(`/api/search?q=${encodeURIComponent(query)}`)
-        let data = await res.json()
+        const res = await fetch(`https://www.pinterest.com/resource/BaseSearchResource/get/?source_url=%2Fsearch%2Fpins%2F%3Fq%3D${encodeURIComponent(query)}&data=%7B%22options%22%3A%7B%22isPrefetch%22%3Afalse%2C%22query%22%3A%22${encodeURIComponent(query)}%22%2C%22scope%22%3A%22pins%22%2C%22no_fetch_context_on_resource%22%3Afalse%7D%2C%22context%22%3A%7B%7D%7D`)
+        const json = await res.json();
+        const data = json.resource_response.data.results;
 
-        loader.style.display = "none"
-
-        if (data.error) {
-          resultDiv.innerHTML = `<p style="color:#f43f5e">${data.error}</p>`
-        } else {
-          resultDiv.innerHTML = `<img src="${data.image}" alt="hasil">`
+        if (!data.length) {
+          resultsDiv.innerHTML = `<p>😔 Tidak ditemukan hasil untuk "<b>${query}</b>"</p>`;
+          return;
         }
-      } catch (err) {
-        loader.style.display = "none"
-        resultDiv.innerHTML = `<p style="color:#f43f5e">Server error: ${err.message}</p>`
+
+        resultsDiv.innerHTML = "";
+        data.forEach(item => {
+          if (item.images && item.images.orig && item.images.orig.url) {
+            const img = document.createElement('img');
+            img.src = item.images.orig.url;
+            resultsDiv.appendChild(img);
+          }
+        });
+      } catch (e) {
+        resultsDiv.innerHTML = "⚠️ Terjadi kesalahan saat mengambil data!";
+        console.error(e);
       }
     }
   </script>
