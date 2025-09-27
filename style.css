@@ -1,0 +1,245 @@
+:root {
+  --bg-color: radial-gradient(circle at top left, #111, #000);
+  --window-bg: rgba(44, 44, 44, 0.85);
+  --header-bg: #3b3b3b;
+  --text-color: #00ff66;
+  --btn-border: #00ff66;
+  --btn-hover-bg: #00ff66;
+  --btn-hover-text: #111;
+  --shadow-color: #00ff66;
+  --loader-bg: #1a1a1a;
+  --loader-text: #00ff66;
+  --loader-header: #333;
+  --menu-bg: rgba(0,0,0,0.7);
+  --menu-text: #00ff66;
+}
+body.light {
+  --bg-color: radial-gradient(circle at top left, #fff, #e6e0ff);
+  --window-bg: rgba(255, 255, 255, 0.85);
+  --header-bg: #bba6ff;
+  --text-color: #6b21a8;
+  --btn-border: #6b21a8;
+  --btn-hover-bg: #6b21a8;
+  --btn-hover-text: #fff;
+  --shadow-color: #b26bff;
+  --loader-bg: #fff;
+  --loader-text: #6b21a8;
+  --loader-header: #bba6ff;
+  --menu-bg: rgba(255,255,255,0.9);
+  --menu-text: #6b21a8;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Courier New", monospace;
+  background: var(--bg-color);
+  color: var(--text-color);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  transition: background 0.5s ease, color 0.5s ease;
+}
+
+/* === Toggle === */
+#checkboxInput { display: none; }
+.toggleSwitch {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  width: 50px;
+  height: 30px;
+  background-color: rgb(82, 82, 82);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: .2s;
+  z-index: 999;
+}
+.toggleSwitch::after {
+  content: "";
+  position: absolute;
+  height: 10px;
+  width: 10px;
+  left: 5px;
+  border-radius: 50%;
+  box-shadow: 5px 2px 7px rgba(8, 8, 8, 0.26);
+  border: 5px solid white;
+  transition: .2s;
+}
+#checkboxInput:checked + .toggleSwitch::after {
+  transform: translateX(100%);
+  background-color: white;
+}
+#checkboxInput:checked + .toggleSwitch {
+  background-color: rgb(148, 118, 255);
+}
+
+/* Loader */
+@keyframes blinkCursor { 50% { border-right-color: transparent; } }
+@keyframes typeAndDelete {
+  0%, 10% { width: 0; }
+  45%, 55% { width: 6.2em; }
+  90%, 100% { width: 0; }
+}
+.terminal-loader {
+  border: 0.1em solid #333;
+  background-color: var(--loader-bg);
+  color: var(--loader-text);
+  font-size: 1em;
+  padding: 1.5em 1em;
+  width: 12em;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+  transition: background 0.5s ease, color 0.5s ease;
+}
+.terminal-header {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1.5em;
+  background-color: var(--loader-header);
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  padding: 0 0.4em;
+}
+.terminal-controls { float: right; }
+.control {
+  display: inline-block;
+  width: 0.6em; height: 0.6em;
+  margin-left: 0.4em;
+  border-radius: 50%;
+  background-color: #777;
+}
+.control.close { background-color: #e33; }
+.control.minimize { background-color: #ee0; }
+.control.maximize { background-color: #0b0; }
+.terminal-title { float: left; color: #eee; }
+.text {
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  border-right: 0.2em solid var(--loader-text);
+  animation: typeAndDelete 4s steps(11) infinite,
+             blinkCursor 0.5s step-end infinite alternate;
+  margin-top: 1.5em;
+}
+
+/* Windows / Box */
+.window {
+  width: 90%;
+  max-width: 700px;
+  background: var(--window-bg);
+  backdrop-filter: blur(6px);
+  border-radius: 8px;
+  box-shadow: 0 4px 15px var(--shadow-color);
+  margin: 15px;
+  overflow: hidden;
+  transition: background 0.5s ease;
+}
+.window-header {
+  background: var(--header-bg);
+  padding: 10px;
+  font-weight: bold;
+}
+.window-body {
+  padding: 20px;
+}
+.window img {
+  width: 100px;
+  border-radius: 50%;
+  margin-bottom: 10px;
+}
+.btn {
+  border: 1px solid var(--btn-border);
+  padding: 8px 15px;
+  border-radius: 5px;
+  margin: 5px;
+  text-decoration: none;
+  color: var(--btn-border);
+  transition: 0.3s;
+}
+.btn:hover {
+  background: var(--btn-hover-bg);
+  color: var(--btn-hover-text);
+}
+
+/* Hide blue box on click */
+button, a, input, .hamburger {
+  outline: none;
+}
+button:focus, a:focus, input:focus, .hamburger:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Burger */
+.hamburger {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  cursor: grab;
+  z-index: 1001;
+}
+.hamburger input { display: none; }
+.hamburger svg {
+  height: 3em;
+  transition: transform 600ms cubic-bezier(0.4,0,0.2,1);
+}
+.line {
+  fill: none;
+  stroke: var(--text-color);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 3;
+  transition: stroke-dasharray 600ms cubic-bezier(0.4,0,0.2,1),
+              stroke-dashoffset 600ms cubic-bezier(0.4,0,0.2,1);
+}
+.line-top-bottom { stroke-dasharray: 12 63; }
+.hamburger input:checked + svg { transform: rotate(-45deg); }
+.hamburger input:checked + svg .line-top-bottom {
+  stroke-dasharray: 20 300;
+  stroke-dashoffset: -32.42;
+}
+
+/* Menu overlay */
+.menu-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: var(--menu-bg);
+  backdrop-filter: blur(6px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+  z-index: 1000;
+}
+.menu-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+.menu-overlay a {
+  color: var(--menu-text);
+  text-decoration: none;
+  font-size: 1.5rem;
+  margin: 10px 0;
+  padding: 10px 20px;
+  border: 1px solid var(--menu-text);
+  border-radius: 5px;
+  transition: all 0.3s ease;
+}
+.menu-overlay a:hover {
+  background: var(--menu-text);
+  color: var(--bg-color);
+}
+.hidden { display: none; }
