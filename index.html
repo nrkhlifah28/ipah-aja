@@ -1,70 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Terminal Style Profile</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <!-- Toggle Theme -->
-  <input type="checkbox" id="checkboxInput">
-  <label for="checkboxInput" class="toggleSwitch"></label>
+  <head>
+    <meta charset="UTF-8">
+    <title>Saturnus di Galaxy</title>
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aframe-orbit-controls@1.3.0/dist/aframe-orbit-controls.min.js"></script>
+  </head>
+  <body>
+    <a-scene>
+      <!-- Galaxy background -->
+      <a-sky src="https://cdn.aframe.io/starry-sky/4096-starfield.jpg"></a-sky>
 
-  <!-- Burger -->
-  <label class="hamburger">
-    <input type="checkbox">
-    <svg viewBox="0 0 32 32">
-      <path class="line line-top-bottom" d="M27 10 13 10C10.8 10 9 8.2 9 6 9 3.5 10.8 2 13 2 15.2 2 17 3.8 17 6L17 26C17 28.2 18.8 30 21 30 23.2 30 25 28.2 25 26 25 23.8 23.2 22 21 22L7 22"></path>
-      <path class="line" d="M7 16 27 16"></path>
-    </svg>
-  </label>
+      <!-- Saturnus dengan tekstur asli -->
+      <a-entity id="planet" position="0 1.6 -4">
+        <a-sphere radius="1.2"
+                  src="https://planet-textures.s3.amazonaws.com/saturn.jpg"
+                  metalness="0.2" roughness="1"
+                  emissive="orange" emissiveIntensity="0.3">
+        </a-sphere>
+      </a-entity>
 
-  <!-- Overlay Menu -->
-  <div class="menu-overlay" id="menu">
-    <a href="#faq">FAQ</a>
-    <a href="#contact">Contact</a>
-  </div>
+      <!-- Ring partikel -->
+      <a-entity id="ring"></a-entity>
 
-  <!-- Loader -->
-  <div class="terminal-loader" id="loader">
-    <div class="terminal-header">
-      <div class="terminal-title">Loading...</div>
-      <div class="terminal-controls">
-        <div class="control close"></div>
-        <div class="control minimize"></div>
-        <div class="control maximize"></div>
-      </div>
-    </div>
-    <div class="text">Initializing...</div>
-  </div>
+      <!-- Cahaya -->
+      <a-entity light="type: point; color: orange; intensity: 2; distance: 10" position="0 1.6 -4"></a-entity>
+      <a-entity light="type: ambient; color: #555"></a-entity>
 
-  <!-- Main Content -->
-  <main class="content hidden">
-    <div class="window profile-box">
-      <div class="window-header">Profile</div>
-      <div class="window-body">
-        <img src="https://files.catbox.moe/q3b10i.jpg" alt="profile">
-        <p>Hello, this is my profile in terminal style.</p>
-      </div>
-    </div>
+      <!-- Kamera bisa digeser pakai jari -->
+      <a-entity camera position="0 1.6 3"
+                orbit-controls="target: #planet;
+                                enableDamping: true;
+                                dampingFactor: 0.1;
+                                rotateSpeed:0.3;
+                                zoomSpeed:0.5;
+                                minDistance: 2;
+                                maxDistance: 8;">
+      </a-entity>
+    </a-scene>
 
-    <div class="window about-box">
-      <div class="window-header">About Me</div>
-      <div class="window-body">
-        <p>I am a courier and love coding experiments with terminal style UI.</p>
-      </div>
-    </div>
-
-    <div class="window links-box">
-      <div class="window-header">Links</div>
-      <div class="window-body">
-        <a href="https://instagram.com" target="_blank" class="btn">Instagram</a>
-        <a href="https://github.com" target="_blank" class="btn">GitHub</a>
-      </div>
-    </div>
-  </main>
-
-  <script src="script.js"></script>
-</body>
+    <script>
+      // Ring Saturnus
+      const ring = document.querySelector("#ring");
+      for (let i = 0; i < 400; i++) {
+        const angle = (i / 400) * Math.PI * 2;
+        const radius = 2 + Math.random() * 0.4;
+        const x = Math.cos(angle) * radius;
+        const z = Math.sin(angle) * radius;
+        const y = (Math.random() - 0.5) * 0.1;
+        const particle = document.createElement("a-sphere");
+        particle.setAttribute("radius", 0.05);
+        particle.setAttribute("color", "#ddd");
+        particle.setAttribute("position", `${x} ${y+1.6} ${z-4}`);
+        ring.appendChild(particle);
+      }
+    </script>
+  </body>
 </html>
