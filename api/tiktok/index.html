@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>TikTok Downloader</title>
+<style>
+  body{font-family:sans-serif;background:#0f1724;color:#e6eef6;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px}
+  .wrap{max-width:480px;width:100%}
+  h1{text-align:center;margin-bottom:16px}
+  .card{background:#1b2536;padding:20px;border-radius:16px;box-shadow:0 8px 24px rgba(0,0,0,0.5)}
+  form{display:flex;gap:10px;margin-bottom:12px}
+  input{flex:1;padding:12px;border-radius:10px;border:1px solid #334;color:#111;font-size:14px}
+  button{padding:12px 16px;border:0;border-radius:10px;background:#06b6d4;color:#022;font-weight:bold;cursor:pointer;transition:all .25s}
+  button:hover{background:#0ed4e0;transform:translateY(-2px)}
+  .status,.error{margin-top:12px;padding:10px;border-radius:10px;font-size:14px;text-align:center}
+  .status{background:#0e2238;color:#9ad}
+  .error{background:#3b0e0e;color:#f88}
+  .result{margin-top:16px;text-align:center;opacity:0;transform:translateY(20px);transition:all .6s ease}
+  .result.show{opacity:1;transform:translateY(0)}
+  .thumb{width:100%;max-width:300px;margin:0 auto 14px;border-radius:12px;overflow:hidden;box-shadow:0 6px 16px rgba(0,0,0,0.6)}
+  .thumb img{width:100%;height:auto;display:block}
+  .meta h3{margin:0;font-size:16px}
+  .meta p{margin:4px 0;color:#9ad;font-size:13px}
+  .downloads{margin-top:16px;display:flex;flex-direction:column;gap:10px}
+  .dl-btn{display:block;padding:12px;border-radius:10px;background:linear-gradient(90deg,#06b6d4,#0ea5a3);color:#022;font-weight:bold;text-decoration:none;transition:.25s}
+  .dl-btn:hover{transform:translateY(-2px);filter:brightness(1.1)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>TikTok Downloader</h1>
+  <div class="card">
+    <form id="form">
+      <input id="inputUrl" type="text" placeholder="( Paste URL video tiktok )" required />
+      <button type="submit">Fetch</button>
+    </form>
+    <div id="status" class="status" style="display:none"></div>
+    <div id="error" class="error" style="display:none"></div>
+    <div id="result" class="result">
+      <div class="thumb" id="thumb"></div>
+      <div class="meta">
+        <h3 id="title"></h3>
+        <p id="creator"></p>
+        <p id="desc"></p>
+      </div>
+      <div class="downloads" id="downloads"></div>
+    </div>
+  </div>
+</div>
+<script>
+const form = document.getElementById('form');
+const input = document.getElementById('inputUrl');
+const statusBox = document.getElementById('status');
+const errorBox = document.getElementById('error');
+const resultBox = document.getElementById('result');
+const thumb = document.getElementById('thumb');
+const titleEl = document.getElementById('title');
+const creatorEl = document.getElementById('creator');
+const descEl = document.getElementById('desc');
+const downloads = document.getElementById('downloads');
+
+function showStatus(msg){ statusBox.style.display='block'; statusBox.textContent=msg }
+function hideStatus(){ statusBox.style.display='none' }
+function showError(msg){ errorBox.style.display='block'; errorBox.textContent=msg }
+function hideError(){ errorBox.style.display='none' }
+
+form.addEventListener('submit', async e=>{
+  e.preventDefault();
+  hideError(); hideStatus();
+  resultBox.classList.remove('show');
+  showStatus('Mengambil data...');
+
+  const url = input.value.trim();
+  if(!url){ showError('Masukkan URL TikTok'); hideStatus(); return; }
+
+  try {
+    const endpoint = 'https://api.siputzx.my.id/api/d/tiktok?url=' + encodeURIComponent(url);
+    const res = await fetch(endpoint);
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    const json = await res.json();
+
+    if(!json.status){ throw new Error('API tidak berhasil'); }
+
+    const data = json.data;
+    titleEl.textContent = data.metadata?.title || 'Tanpa judul';
+    creatorEl.textContent = 'Creator: ' + (data.metadata?.creator || '-');
+    descEl.textContent = data.metadata?.description || '';
+    thumb.innerHTML = data.metadata?.thumbnail ? `<img src="${data.metadata.thumbnail}">` : '';
+
+    downloads.innerHTML = '';
+    if(Array.isArray(data.urls)){
+      data.urls.forEach((u,i)=>{
+        const a = document.createElement('a');
+        a.className = 'dl-btn';
+        a.href = u;
+        a.download = "tiktok_video.mp4"; // supaya auto download
+        a.textContent = i===0 ? 'Download Video' : 'Download Video (Mirror '+i+')';
+        downloads.appendChild(a);
+      });
+    }
+
+    hideStatus();
+    resultBox.classList.add('show');
+
+  } catch(err){
+    hideStatus();
+    showError("Gagal fetch: " + err.message + " (Cek console)");
+    console.error(err);
+  }
+});
+</script>
+</body>
+</html>
